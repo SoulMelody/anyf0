@@ -13,7 +13,6 @@ dependencies = [
 ]
 name = "anyf0"
 description = "Use VocalShifter to visualize f0 curve instead of matplotlib"
-readme = "README.md"
 keywords = []
 classifiers = []
 
