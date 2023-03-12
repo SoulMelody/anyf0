@@ -3,6 +3,7 @@ from construct import (
     BytesInteger,
     Const,
     Float64l,
+    If,
     Int16sl,
     Int16ul,
     PaddedString,
@@ -10,7 +11,6 @@ from construct import (
     this,
 )
 from construct import Enum as CSEnum
-from construct import Optional as CSOptional
 
 Int32ul = BytesInteger(4, swapped=True, signed=False)
 
@@ -26,7 +26,7 @@ VocalShifterLabel = Struct(
 VocalShifterLabels = Struct(
     "magic" / Const(b"Labl"),
     "size" / Int32ul,
-    "labels" / VocalShifterLabel[this.size // VocalShifterLabel.sizeof()],
+    "labels" / VocalShifterLabel[this._.header.label_count],
 )
 
 
@@ -41,7 +41,7 @@ VocalShifterNote = Struct(
 VocalShifterNotes = Struct(
     "magic" / Const(b"Note"),
     "size" / Int32ul,
-    "notes" / VocalShifterNote[this.size // VocalShifterNote.sizeof()],
+    "notes" / VocalShifterNote[this._.header.notes_count],
 )
 
 
@@ -112,7 +112,16 @@ VocalShifterPatternHeader = Struct(
     "key_scale" / Int16ul, # key_max = key_min + key_scale
     "padding2" / Bytes(12),
     "analysis_method" / VocalShifterAnalysisMethod,
-    "reserved" / Bytes(110),
+    "padding3" / Bytes(78),
+    "spectrum_key_min" / Int16ul,
+    "spectrum_key_scale" / Int16ul,
+    "spectrum_points_density" / Int16ul,
+    "spectrum_unknown1" / Int16ul,
+    "spectrum_points_count" / Int32ul,
+    "spectrum_unknown2" / Int32ul,
+    "notes_count" / Int32ul,
+    "label_count" / Int32ul,
+    "padding4" / Bytes(8),
     "eq1" / Int16sl[16],
     "eq2" / Int16sl[16],
     "heq" / Int16sl[16],
@@ -122,7 +131,11 @@ VocalShifterPatternHeader = Struct(
 VocalShifterSpectrumData = Struct(
     "magic" / Const(b"Spct"),
     "size" / Int32ul,
-    "data" / Bytes(this.size),
+    "data" / Int16ul[
+        this._.header.spectrum_points_count *
+        this._.header.spectrum_points_density *
+        this._.header.spectrum_key_scale
+    ],
 )
 
 
@@ -133,9 +146,15 @@ VocalShifterPatternData = Struct(
     "points" / VocalShifterControlPoint[this.header.points_count],
     "start_time" / VocalShifterTime,
     "end_time" / VocalShifterTime,
-    "spectrum" / CSOptional(VocalShifterSpectrumData),
+    "spectrum" / If(
+        this.header.spectrum_points_count > 0,
+        VocalShifterSpectrumData,
+    ),
     "notes" / VocalShifterNotes,
-    "labels" / CSOptional(VocalShifterLabels),
+    "labels" / If(
+        this.header.label_count > 0,
+        VocalShifterLabels
+    ),
 )
 
 VocalShifterPatternMetadata = Struct(
