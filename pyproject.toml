@@ -28,8 +28,8 @@ enable-cuda = true
 cuda-versions = ["cu117"]
 
 [tool.pdm.dev-dependencies]
-plot = ["matplotlib>=3.6.3"]
-dev = ["black>=23.1.0"]
+plot = ["matplotlib>=3.7.1"]
+dev = ["black>=23.3.0"]
 
 [tool.pdm.scripts]
 anyf0 = { call = "anyf0.__main__:getf0" }

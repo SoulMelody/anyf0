@@ -101,5 +101,5 @@ summary = "Backported and Experimental Type Hints for Python 3.7+"
 lock_version = "4.2"
 cross_platform = true
 groups = ["default", "dev", "plot"]
-content_hash = "sha256:e57cf64cfedd9834cfd998f48a9bf442062fc335871bd6ae44446034eeaa7215"
+content_hash = "sha256:3bae7caf4590831e8256db0d73ce95441317735b907d683009cfd7aed0ed5f93"
 
