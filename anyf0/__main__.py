@@ -12,7 +12,7 @@ from anyf0.vshp import VocalShifterPatternType, VocalShifterProjectData
 @click.command()
 @click.argument('vshp_path', type=click.Path(exists=True, dir_okay=False, path_type=pathlib.Path))
 @click.option('--method', type=click.Choice(['torchcrepe', 'dio', 'harvest', 'yin', 'pyin', 'swipe', 'salience', 'parselmouth']), default='parselmouth')
-def getf0(vshp_path, method):
+def getf0(vshp_path: pathlib.Path, method: str) -> None:
     vshp_data = VocalShifterProjectData.parse_file(vshp_path)
     pattern_index = int(click.prompt(
         "Pattern Index",
@@ -22,7 +22,11 @@ def getf0(vshp_path, method):
         ])
     ))
     wav_path = vshp_data.pattern_metadatas[pattern_index].path_and_ext.split(b'\x00')[0].decode('gbk')
-    normlized_path = pathlib.PureWindowsPath(wav_path).as_posix()
+    wav_path = pathlib.PureWindowsPath(wav_path)
+    if wav_path.is_absolute():
+        normlized_path = wav_path.as_posix()
+    else:
+        normlized_path = vshp_path.parent.joinpath(wav_path.as_posix())
     pattern_data = vshp_data.pattern_datas[pattern_index]
     sample_rate = pattern_data.header.sample_rate
     hop_length = sample_rate / pattern_data.header.frame_length
