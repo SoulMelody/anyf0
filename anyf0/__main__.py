@@ -1,26 +1,35 @@
+import csv
+import functools
 import math
 import pathlib
+from typing import BinaryIO
 
 import click
+import mido
 import numpy as np
 import librosa
+import pretty_midi
 
 from anyf0.f0_extractor import F0Extractor
 from anyf0.vshp import VocalShifterPatternType, VocalShifterProjectData
 
+@click.group()
+def cli():
+    pass
 
-@click.command()
+@cli.command()
 @click.argument('vshp_path', type=click.Path(exists=True, dir_okay=False, path_type=pathlib.Path))
 @click.option('--method', type=click.Choice(['torchcrepe', 'dio', 'harvest', 'yin', 'pyin', 'swipe', 'salience', 'parselmouth']), default='parselmouth')
 def getf0(vshp_path: pathlib.Path, method: str) -> None:
     vshp_data = VocalShifterProjectData.parse_file(vshp_path)
-    pattern_index = int(click.prompt(
+    pattern_index = click.prompt(
         "Pattern Index",
         type=click.Choice([
             str(i) for i in range(vshp_data.project_metadata.pattern_count)
             if vshp_data.pattern_datas[i].header.pattern_type == VocalShifterPatternType.WAVE
-        ])
-    ))
+        ]),
+        value_proc=int
+    )
     wav_path = vshp_data.pattern_metadatas[pattern_index].path_and_ext.split(b'\x00')[0].decode('gbk')
     wav_path = pathlib.PureWindowsPath(wav_path)
     if wav_path.is_absolute():
@@ -55,5 +64,47 @@ def getf0(vshp_path: pathlib.Path, method: str) -> None:
     click.echo("Done")
 
 
+@cli.command()
+@click.argument('midi_file', type=click.File(mode="rb"))
+@click.argument('txt_path', type=click.Path(exists=False, dir_okay=False, path_type=pathlib.Path))
+@click.option("--default-lyric", type=str, default="la")
+@click.option("--charset", type=str, default="utf-8")
+def export_lyric(midi_file: BinaryIO, txt_path: pathlib.Path, default_lyric: str = "la", charset: str = "utf-8") -> None:
+    """
+    Export lyric from midi to a text label file (which can be imported into a pattern later via vocalshifter)
+    """
+    mido.MidiFile = functools.partial(mido.MidiFile, charset=charset)
+    midi_obj = pretty_midi.PrettyMIDI(midi_file)
+    with txt_path.open("w", encoding="utf-8") as f:
+        csv_writer = csv.DictWriter(f, fieldnames=["start", "end", "lyric"], dialect="excel-tab")
+        time2lyrics = {
+            lyric.time: lyric.text for lyric in midi_obj.lyrics
+        }
+        for i, track in enumerate(midi_obj.instruments):
+            click.echo(f"track {i} has {len(track.notes)} notes.")
+        midi_track_index = click.prompt(
+            "MIDI Track Index",
+            type=click.IntRange(0, len(midi_obj.instruments), max_open=True, clamp=True),
+        )
+        midi_track: pretty_midi.Instrument = midi_obj.instruments[midi_track_index]
+        for note in midi_track.notes:
+            note: pretty_midi.Note
+            if len(time2lyrics):
+                if note.start not in time2lyrics:
+                    continue
+                lyric = time2lyrics[note.start]
+            else:
+                lyric = default_lyric
+            csv_writer.writerow(
+                {
+                    "start": note.start,
+                    "end": note.end,
+                    "lyric": lyric
+                }
+            )
+    click.echo("Done")
+    
+
+
 if __name__ == '__main__':
-    getf0()
+    cli()

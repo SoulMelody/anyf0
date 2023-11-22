@@ -1,15 +1,16 @@
 [project]
 authors = [{ name = "SoulMelody", email = "yjxrtzyx@gmail.com" }]
 version = "0.1.0"
-requires-python = ">=3.10,<3.12"
+requires-python = ">=3.10,<3.13"
 license = { text = "MIT" }
 dependencies = [
     "praat-parselmouth>=0.4.3",
     "pyworld>=0.3.4",
-    "torchcrepe>=0.0.21",
+    "torchcrepe>=0.0.22",
     "libf0>=1.0.2",
-    "construct>=2.10.68",
+    "construct>=2.10.69",
     "click>=8.1.7",
+    "pretty-midi>=0.2.10",
 ]
 name = "anyf0"
 description = "Use VocalShifter to visualize f0 curve instead of matplotlib"
@@ -17,11 +18,11 @@ keywords = []
 classifiers = []
 
 [tool.pdm.dev-dependencies]
-plot = ["matplotlib>=3.8.0"]
-dev = ["black>=23.9.1"]
+plot = ["matplotlib>=3.8.2"]
+dev = ["black>=23.11.0"]
 
 [tool.pdm.scripts]
-anyf0 = { call = "anyf0.__main__:getf0" }
+anyf0 = { call = "anyf0.__main__:cli" }
 
 [build-system]
 requires = ["pdm-pep517>=1.0"]
