@@ -11,6 +11,7 @@ dependencies = [
     "construct>=2.10.69",
     "click>=8.1.7",
     "pretty-midi>=0.2.10",
+    "tgt>=1.4.4",
 ]
 name = "anyf0"
 description = "Use VocalShifter to visualize f0 curve instead of matplotlib"

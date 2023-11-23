@@ -5,7 +5,7 @@
 groups = ["default", "dev", "plot"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:8859e8cb8a4c5320cccbbe29b01c4913bc87aa5e3ba5a7f7d721fc1f0f91573b"
+content_hash = "sha256:0b756c683c98c18abf3df9ef8ecde0e3c3950ccaac30d1802ccf236f1e03d810"
 
 [[package]]
 name = "audioread"
@@ -1213,6 +1213,14 @@ dependencies = [
 files = [
     {file = "sympy-1.12-py3-none-any.whl", hash = "sha256:c3588cd4295d0c0f603d0f2ae780587e64e2efeedb3521e46b9bb1d08d184fa5"},
     {file = "sympy-1.12.tar.gz", hash = "sha256:ebf595c8dac3e0fdc4152c51878b498396ec7f30e7a914d6071e674d49420fb8"},
+]
+
+[[package]]
+name = "tgt"
+version = "1.4.4"
+summary = "TextGridTools -- Read, write, and manipulate Praat TextGrid files"
+files = [
+    {file = "tgt-1.4.4.tar.gz", hash = "sha256:1473f3c2292f0b97d779b6f575df0d3394ded94f4bf62417bd5781b3889f7a62"},
 ]
 
 [[package]]

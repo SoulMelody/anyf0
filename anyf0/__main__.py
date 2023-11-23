@@ -9,6 +9,9 @@ import mido
 import numpy as np
 import librosa
 import pretty_midi
+from parselmouth import TextGrid
+from parselmouth.praat import call
+from tgt.core import IntervalTier
 
 from anyf0.f0_extractor import F0Extractor
 from anyf0.vshp import VocalShifterPatternType, VocalShifterProjectData
@@ -103,6 +106,46 @@ def export_lyric(midi_file: BinaryIO, txt_path: pathlib.Path, default_lyric: str
                 }
             )
     click.echo("Done")
+
+
+@cli.command()
+@click.argument('input_path', type=click.Path(exists=True, dir_okay=False, path_type=pathlib.Path))
+@click.argument('txt_path', type=click.Path(exists=False, dir_okay=False, path_type=pathlib.Path))
+def export_labels(input_path: pathlib.Path, txt_path: pathlib.Path) -> None:
+    """
+    Export lyric from Praat TextGrid to a text label file (which can be imported into a pattern later via vocalshifter)
+    """
+    datas = call("Read from file", str(input_path))
+    tg_index = click.prompt(
+        "TextGrid Index",
+        type=click.Choice([
+            str(i) for i, data in enumerate(datas)
+            if isinstance(data, TextGrid)
+        ]),
+        value_proc=int
+    )
+    text_grid = datas[tg_index].to_tgt()
+    name2tiers = {
+        tier.name: tier for tier in text_grid.tiers
+        if isinstance(tier, IntervalTier)
+    }
+    tier_name = click.prompt(
+        "IntervalTier Index",
+        type=click.Choice(list(name2tiers)),
+    )
+    tier = name2tiers[tier_name]
+    with txt_path.open("w", encoding="utf-8") as f:
+        csv_writer = csv.DictWriter(f, fieldnames=["start", "end", "lyric"], dialect="excel-tab")
+        for interval in tier._objects:
+            csv_writer.writerow(
+                {
+                    "start": interval.start_time,
+                    "end": interval.end_time,
+                    "lyric": interval.text
+                }
+            )
+    click.echo("Done")
+
     
 
 
