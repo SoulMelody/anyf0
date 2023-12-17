@@ -112,8 +112,8 @@ def export_lyric(midi_file: BinaryIO, txt_path: pathlib.Path, default_lyric: str
             type=click.IntRange(0, len(midi_obj.instruments), max_open=True, clamp=True),
         )
         midi_track: pretty_midi.Instrument = midi_obj.instruments[midi_track_index]
+        note: pretty_midi.Note
         for note in midi_track.notes:
-            note: pretty_midi.Note
             if len(time2lyrics):
                 if note.start not in time2lyrics:
                     continue

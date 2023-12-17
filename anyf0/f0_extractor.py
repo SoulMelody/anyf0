@@ -12,6 +12,8 @@ import torch
 import torchcrepe
 import torchfcpe
 
+from anyf0.rmvpe import RMVPE
+
 
 @dataclasses.dataclass
 class F0Extractor:
@@ -147,8 +149,14 @@ class F0Extractor:
                 )
                 f0 = f0.squeeze().cpu().numpy()
             case "rmvpe":
-                pass
-                # TODO
+                device = "cuda" if torch.cuda.is_available() else "cpu"
+                model_rmvpe = RMVPE(
+                    "rmvpe.pt",
+                    is_half=True,
+                    device=device,
+                    hop_length=80
+                )
+                f0 = model_rmvpe.infer_from_audio(self.wav16k, thred=0.03)
             case "praat_ac" | "praat_cc":
                 l_pad = int(np.ceil(1.5 / self.f0_min * self.sample_rate))
                 r_pad = int(self.hop_size * ((len(self.x) - 1) // self.hop_size + 1) - len(self.x) + l_pad + 1)
