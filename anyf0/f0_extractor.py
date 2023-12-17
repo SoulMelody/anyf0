@@ -59,42 +59,30 @@ class F0Extractor:
                 f0 = f0.astype("float")
             case "pyin":
                 f0, _, _ = librosa.pyin(
-                    self.wav16k,
+                    y=self.wav16k,
                     fmin=self.f0_min,
                     fmax=self.f0_max,
                     sr=16000,
                     hop_length=80,
                 )
-            case "cep":
-                f0 = audioflux.PitchCEP(
-                    16000,
-                    low_fre=self.f0_min,
-                    high_fre=self.f0_max,
-                    slide_length=80,
-                ).pitch(np.pad(self.wav16k, (2048, 2048)))
-            case "hps":
-                f0 = audioflux.PitchHPS(
-                    16000,
-                    low_fre=self.f0_min,
-                    high_fre=self.f0_max,
-                    slide_length=80,
-                ).pitch(np.pad(self.wav16k, (2048, 2048)))
-            case "lhs":
-                f0 = audioflux.PitchLHS(
-                    16000,
-                    low_fre=self.f0_min,
-                    high_fre=self.f0_max,
-                    slide_length=80,
-                ).pitch(np.pad(self.wav16k, (2048, 2048)))
-            case "ncf":
-                f0 = audioflux.PitchNCF(
-                    16000,
-                    low_fre=self.f0_min,
-                    high_fre=self.f0_max,
-                    slide_length=80,
-                ).pitch(np.pad(self.wav16k, (2048, 2048)))
-            case "pef":
-                f0 = audioflux.PitchPEF(
+            case "piptrack":
+                pitches, magnitudes = librosa.piptrack(
+                    y=self.wav16k,
+                    fmin=self.f0_min,
+                    fmax=self.f0_max,
+                    sr=16000,
+                    hop_length=80,
+                )
+                max_indexes = np.argmax(magnitudes, axis=0)
+                f0 = pitches[max_indexes, range(magnitudes.shape[1])]
+            case "cep" | "hps" | "lhs" | "ncf" | "pef":
+                f0 = {
+                    "cep": audioflux.PitchCEP,
+                    "hps": audioflux.PitchHPS,
+                    "lhs": audioflux.PitchLHS,
+                    "ncf": audioflux.PitchNCF,
+                    "pef": audioflux.PitchPEF,
+                }[self.method](
                     16000,
                     low_fre=self.f0_min,
                     high_fre=self.f0_max,
@@ -114,19 +102,14 @@ class F0Extractor:
                     high_fre=self.f0_max,
                     slide_length=80,
                 ).pitch(np.pad(self.wav16k, (2048, 2048)))
-            case "swipe":
-                f0, _, _ = libf0.swipe(
+            case "swipe" | "salience":
+                f0, _, _ = {
+                    "swipe": libf0.swipe,
+                    "salience": libf0.salience,
+                }[self.method](
                     self.x,
                     Fs=self.sample_rate,
                     H=self.hop_length,
-                    F_min=self.f0_min,
-                    F_max=self.f0_max,
-                )
-            case "salience":
-                f0, _, _ = libf0.salience(
-                    self.wav16k,
-                    Fs=16000,
-                    H=80,
                     F_min=self.f0_min,
                     F_max=self.f0_max,
                 )
@@ -150,12 +133,14 @@ class F0Extractor:
             case "rmvpe":
                 pass
                 # TODO
-            case "parselmouth":
+            case "praat_ac" | "praat_cc":
                 l_pad = int(np.ceil(1.5 / self.f0_min * self.sample_rate))
                 r_pad = int(self.hop_size * ((len(self.x) - 1) // self.hop_size + 1) - len(self.x) + l_pad + 1)
                 f0 = (
-                    parselmouth.Sound(np.pad(self.x, (l_pad, r_pad)), self.sample_rate)
-                    .to_pitch_ac(
+                    getattr(
+                        parselmouth.Sound(np.pad(self.x, (l_pad, r_pad)), self.sample_rate),
+                        "to_pitch_" + self.method.rpartition('_')[-1]
+                    )(
                         time_step=self.hop_size,
                         voicing_threshold=0.6,
                         pitch_floor=self.f0_min,
@@ -163,6 +148,16 @@ class F0Extractor:
                     )
                     .selected_array["frequency"]
                 )
+            case "praat_shs":
+                l_pad = int(np.ceil(1.5 / self.f0_min * self.sample_rate))
+                r_pad = int(self.hop_size * ((len(self.x) - 1) // self.hop_size + 1) - len(self.x) + l_pad + 1)
+                f0 = parselmouth.Sound(
+                    np.pad(self.x, (l_pad, r_pad)), self.sample_rate
+                ).to_pitch_shs(
+                    time_step=self.hop_size,
+                    minimum_pitch=self.f0_min,
+                    maximum_frequency_component=self.f0_max,
+                ).selected_array["frequency"]
             case _:
                 raise ValueError(f"Unknown method: {self.method}")
         return libf0.hz_to_cents(f0, librosa.midi_to_hz(0))

@@ -26,6 +26,7 @@ def cli():
     'dio',
     'harvest',
     'pyin',
+    'piptrack',
     'cep',
     'hps',
     'lhs',
@@ -38,8 +39,10 @@ def cli():
     'torchcrepe',
     'torchfcpe',
     'rmvpe',
-    'parselmouth'
-]), default='parselmouth')
+    'praat_ac',
+    'praat_cc',
+    'praat_shs'
+]), default='praat_ac')
 def getf0(vshp_path: pathlib.Path, method: str) -> None:
     vshp_data = VocalShifterProjectData.parse_file(vshp_path)
     pattern_indexes = []
