@@ -22,15 +22,35 @@ def cli():
 
 @cli.command()
 @click.argument('vshp_path', type=click.Path(exists=True, dir_okay=False, path_type=pathlib.Path))
-@click.option('--method', type=click.Choice(['torchcrepe', 'dio', 'harvest', 'yin', 'pyin', 'swipe', 'salience', 'parselmouth']), default='parselmouth')
+@click.option('--method', type=click.Choice([
+    'dio',
+    'harvest',
+    'pyin',
+    'cep',
+    'hps',
+    'lhs',
+    'ncf',
+    'pef',
+    'stft',
+    'yin',
+    'swipe',
+    'salience',
+    'torchcrepe',
+    'torchfcpe',
+    'rmvpe',
+    'parselmouth'
+]), default='parselmouth')
 def getf0(vshp_path: pathlib.Path, method: str) -> None:
     vshp_data = VocalShifterProjectData.parse_file(vshp_path)
+    pattern_indexes = []
+    for i in range(vshp_data.project_metadata.pattern_count):
+        if vshp_data.pattern_datas[i].header.pattern_type == VocalShifterPatternType.WAVE:
+            wav_path = vshp_data.pattern_metadatas[i].path_and_ext.split(b'\x00')[0].decode('gbk')
+            click.echo(f"Pattern {i}: {wav_path}")
+            pattern_indexes.append(str(i))
     pattern_index = click.prompt(
         "Pattern Index",
-        type=click.Choice([
-            str(i) for i in range(vshp_data.project_metadata.pattern_count)
-            if vshp_data.pattern_datas[i].header.pattern_type == VocalShifterPatternType.WAVE
-        ]),
+        type=click.Choice(pattern_indexes),
         value_proc=int
     )
     wav_path = vshp_data.pattern_metadatas[pattern_index].path_and_ext.split(b'\x00')[0].decode('gbk')
@@ -51,14 +71,13 @@ def getf0(vshp_path: pathlib.Path, method: str) -> None:
     click.echo(f"F0 Max: {f0_max}")
 
     f0_extractor = F0Extractor(
-        normlized_path, sampling_rate=sample_rate, hop_length=hop_length,
+        normlized_path, sample_rate=sample_rate, hop_length=hop_length,
         f0_min=f0_min, f0_max=f0_max, method=method
     )
     f0 = f0_extractor.extract_f0()
     pattern_data.points = [
         {
-            key: round(
-                f0[i]) if key == 'ori_pit' and i < len(f0) and not np.isnan(f0[i]) else value
+            key: max(round(f0[i]), 0) if key == 'ori_pit' and i < len(f0) and not np.isnan(f0[i]) else value
                 for key, value in pattern_data.points[i].items() if key != '_io'
         }
         for i in range(pattern_data.header.points_count)

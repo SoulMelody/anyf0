@@ -2,8 +2,8 @@
 pip install pdm
 pdm config pypi.url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 pdm sync
-pip install \
+pdm run python -m pip install \
     --index-url https://pypi.tuna.tsinghua.edu.cn/simple \
     --find-links https://mirrors.aliyun.com/pytorch-wheels/torch_stable.html \
     --no-cache-dir \
-    torch===2.1.1+cu121
+    torchaudio===2.1.1+cu121
