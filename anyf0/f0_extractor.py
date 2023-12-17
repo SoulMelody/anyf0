@@ -9,8 +9,8 @@ import parselmouth
 import pyworld as pw
 import resampy
 import torch
-import torchfcpe
 import torchcrepe
+import torchfcpe
 
 
 @dataclasses.dataclass
@@ -20,7 +20,7 @@ class F0Extractor:
     hop_length: int = 512
     f0_min: int = 50
     f0_max: int = 1600
-    method: str = "parselmouth"
+    method: str = "praat_ac"
     x: np.ndarray = dataclasses.field(init=False)
 
     def __post_init__(self):
@@ -128,8 +128,24 @@ class F0Extractor:
                 )
                 f0 = f0[0].cpu().numpy()
             case "torchfcpe":
-                pass
-                # TODO
+                device = "cuda" if torch.cuda.is_available() else "cpu"
+                audio = librosa.to_mono(self.x)
+                audio_length = len(audio)
+                f0_target_length = (audio_length // self.hop_length) + 1
+                audio = torch.from_numpy(audio).float().unsqueeze(0).unsqueeze(-1).to(device)
+                model = torchfcpe.spawn_bundled_infer_model(device=device)
+
+                f0 = model.infer(
+                    audio,
+                    sr=self.sample_rate,
+                    decoder_mode='local_argmax',
+                    threshold=0.006,
+                    f0_min=self.f0_min,
+                    f0_max=self.f0_max,
+                    interp_uv=False,
+                    output_interp_target_length=f0_target_length,
+                )
+                f0 = f0.squeeze().cpu().numpy()
             case "rmvpe":
                 pass
                 # TODO
