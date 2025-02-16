@@ -1,16 +1,44 @@
 [project]
 authors = [{ name = "SoulMelody", email = "yjxrtzyx@gmail.com" }]
 version = "0.1.0"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10,<3.14"
 license = { text = "MIT" }
 name = "anyf0"
 description = "Use VocalShifter to visualize f0 curve instead of matplotlib"
 keywords = []
 classifiers = []
+dependencies = [
+    "audioflux>=0.1.9",
+    "construct>=2.10.70",
+    "libf0>=1.0.2",
+    "praat-parselmouth>=0.4.5",
+    "pretty-midi>=0.2.10",
+    "pyworld>=0.3.5",
+    "tgt>=1.5",
+    "torchcrepe>=0.0.23",
+    "torchfcpe>=0.0.4",
+]
 
-[tool.pdm.scripts]
-anyf0 = { call = "anyf0.__main__:cli" }
+[dependency-groups]
+dev = [
+    "conda-lock>=2.5.7",
+]
+
+[tool.conda-lock]
+channels = [
+    'conda-forge'
+]
+platforms = [
+    'win-64', 'linux-64'
+]
+default-non-conda-source = "pip"
+
+[tool.conda-lock.dependencies]
+pytorch-gpu = ">=2.6.0"
+
+[project.scripts]
+anyf0 = "anyf0.__main__:cli"
 
 [build-system]
-requires = ["pdm-pep517>=1.0"]
-build-backend = "pdm.pep517.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
