@@ -10,7 +10,7 @@ classifiers = []
 dependencies = [
     "audioflux>=0.1.9",
     "construct>=2.10.70",
-    "libf0>=1.0.2",
+    "numpy>=2.0,<2.2",
     "praat-parselmouth>=0.4.5",
     "pretty-midi>=0.2.10",
     "pyworld>=0.3.5",
@@ -22,6 +22,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "conda-lock>=2.5.7",
+    "jaxtyping>=0.2.38",
     "pip>=25.0.1",
 ]
 
@@ -36,6 +37,7 @@ default-non-conda-source = "pip"
 
 [tool.conda-lock.dependencies]
 pytorch-gpu = ">=2.6.0"
+numpy = ">=2.0,<2.2"
 
 [project.scripts]
 anyf0 = "anyf0.__main__:cli"

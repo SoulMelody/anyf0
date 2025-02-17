@@ -2,7 +2,6 @@ import dataclasses
 import pathlib
 
 import audioflux
-import libf0
 import librosa
 import numpy as np
 import parselmouth
@@ -13,6 +12,31 @@ import torchcrepe
 import torchfcpe
 
 from anyf0.rmvpe import RMVPE
+
+
+def hz_to_cents(F, F_ref=55.0):
+    """
+    Converts frequency in Hz to cents.
+
+    Parameters
+    ----------
+    F : float or ndarray
+        Frequency value in Hz
+    F_ref : float
+        Reference frequency in Hz (Default value = 55.0)
+    Returns
+    -------
+    F_cents : float or ndarray
+        Frequency in cents
+    """
+
+    # Avoid division by 0
+    F_temp = np.array(F).astype(float)
+    F_temp[F_temp == 0] = np.nan
+
+    F_cents = 1200 * np.log2(F_temp / F_ref)
+
+    return F_cents
 
 
 @dataclasses.dataclass
@@ -104,17 +128,6 @@ class F0Extractor:
                     high_fre=self.f0_max,
                     slide_length=80,
                 ).pitch(np.pad(self.wav16k, (2048, 2048)))
-            case "swipe" | "salience":
-                f0, _, _ = {
-                    "swipe": libf0.swipe,
-                    "salience": libf0.salience,
-                }[self.method](
-                    self.x,
-                    Fs=self.sample_rate,
-                    H=self.hop_length,
-                    F_min=self.f0_min,
-                    F_max=self.f0_max,
-                )
             case "torchcrepe":
                 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -184,7 +197,7 @@ class F0Extractor:
                 ).selected_array["frequency"]
             case _:
                 raise ValueError(f"Unknown method: {self.method}")
-        return libf0.hz_to_cents(f0, librosa.midi_to_hz(0))
+        return hz_to_cents(f0, librosa.midi_to_hz(0))
 
     def plot_f0(self, f0):
         from matplotlib import pyplot as plt
