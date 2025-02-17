@@ -23,7 +23,7 @@ jobs:
 
       - name: Set up micromamba
         if: steps.changed-files.outputs.pyproject_any_changed == 'true'
-        uses: astral-sh/setup-uv@v5
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-file: build-environment.yml
           init-shell: >-
