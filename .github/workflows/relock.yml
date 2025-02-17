@@ -21,15 +21,15 @@ jobs:
             pyproject:
               - "pyproject.toml"
 
-      - name: Set up micromamba
+      - name: Set up miniconda
         if: steps.changed-files.outputs.pyproject_any_changed == 'true'
-        uses: mamba-org/setup-micromamba@v2
+        uses: conda-incubator/setup-miniconda@v3
+        id: setup-miniforge
         with:
+          miniforge-version: "latest"
           environment-file: build-environment.yml
-          init-shell: >-
-            bash
-          cache-environment: true
-          post-cleanup: 'all'
+          conda-solver: libmamba
+          channels: conda-forge
 
       - name: Update conda-lock
         shell: bash -el {0}
