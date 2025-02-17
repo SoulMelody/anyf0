@@ -1,7 +1,9 @@
 name: relock
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   test:
@@ -11,9 +13,30 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: run
-        uses: conda-incubator/relock-conda@main
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          git-user-name: '@@GIT_USER_NAME@@'
-          environment-file: pyproject.toml
+          files_yaml: |
+            pyproject:
+              - "pyproject.toml"
+
+      - name: Set up micromamba
+        if: steps.changed-files.outputs.pyproject_any_changed == 'true'
+        uses: astral-sh/setup-uv@v5
+        with:
+          environment-file: build-environment.yml
+          init-shell: >-
+            bash
+          cache-environment: true
+          post-cleanup: 'all'
+
+      - name: Update conda-lock
+        shell: bash -el {0}
+        run: |
+          conda-lock -f pyproject.toml --virtual-package-spec virtual-packages.yml
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: update conda-lock
