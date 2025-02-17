@@ -1,0 +1,19 @@
+name: relock
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: test
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: run
+        uses: conda-incubator/relock-conda@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          git-user-name: '@@GIT_USER_NAME@@'
+          environment-file: pyproject.toml
