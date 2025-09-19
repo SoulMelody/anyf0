@@ -1,8 +1,0 @@
-subdirs:
-  linux-64:
-    packages:
-      __glibc: "2.28"
-      __cuda: "12.8"
-  win-64:
-    packages:
-      __cuda: "12.8"

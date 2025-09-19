@@ -1,6 +1,0 @@
-name: build-env
-channels:
-  - conda-forge
-dependencies:
-  - conda-lock
-  - pip

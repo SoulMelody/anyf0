@@ -10,34 +10,38 @@ classifiers = []
 dependencies = [
     "audioflux>=0.1.9",
     "construct>=2.10.70",
-    "numpy>=2.0,<2.2",
-    "praat-parselmouth>=0.4.5",
+    "praat-parselmouth>=0.4.6",
     "pretty-midi>=0.2.10",
     "pyworld>=0.3.5",
     "tgt>=1.5",
-    "torchcrepe>=0.0.23",
+    "torchcrepe>=0.0.24",
     "torchfcpe>=0.0.4",
 ]
 
 [dependency-groups]
 dev = [
-    "conda-lock>=2.5.7",
-    "jaxtyping>=0.2.38",
-    "pip>=25.0.1",
+    "jaxtyping>=0.3.2",
 ]
 
-[tool.conda-lock]
-channels = [
-    'conda-forge'
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
+    { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
 ]
-platforms = [
-    'win-64', 'linux-64'
+torchaudio = [
+    { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
+    { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
 ]
-default-non-conda-source = "pip"
 
-[tool.conda-lock.dependencies]
-pytorch-gpu = ">=2.6.0"
-numpy = ">=2.0,<2.2"
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
 
 [project.scripts]
 anyf0 = "anyf0.__main__:cli"
