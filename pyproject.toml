@@ -8,9 +8,9 @@ description = "Use VocalShifter to visualize f0 curve instead of matplotlib"
 keywords = []
 classifiers = []
 dependencies = [
-    "audioflux>=0.1.9",
     "construct>=2.10.70",
-    "praat-parselmouth>=0.4.6",
+    "numba>=0.63.1",
+    "praat-parselmouth>=0.4.7",
     "pretty-midi>=0.2.10",
     "pyworld>=0.3.5",
     "tgt>=1.5",
@@ -20,17 +20,18 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "jaxtyping>=0.3.2",
+    "jaxtyping>=0.3.7",
+    "matplotlib>=3.10.8",
 ]
 
 [tool.uv.sources]
 torch = [
     { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
+    { index = "pytorch-cu130", marker = "sys_platform != 'darwin'" },
 ]
 torchaudio = [
     { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu128", marker = "sys_platform != 'darwin'" },
+    { index = "pytorch-cu130", marker = "sys_platform != 'darwin'" },
 ]
 
 [[tool.uv.index]]
@@ -39,8 +40,8 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [[tool.uv.index]]
-name = "pytorch-cu128"
-url = "https://download.pytorch.org/whl/cu128"
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
 explicit = true
 
 [project.scripts]

@@ -1,7 +1,6 @@
 import dataclasses
 import pathlib
 
-import audioflux
 import librosa
 import numpy as np
 import parselmouth
@@ -101,33 +100,6 @@ class F0Extractor:
                 )
                 max_indexes = np.argmax(magnitudes, axis=0)
                 f0 = pitches[max_indexes, range(magnitudes.shape[1])]
-            case "cep" | "hps" | "lhs" | "ncf" | "pef":
-                f0 = {
-                    "cep": audioflux.PitchCEP,
-                    "hps": audioflux.PitchHPS,
-                    "lhs": audioflux.PitchLHS,
-                    "ncf": audioflux.PitchNCF,
-                    "pef": audioflux.PitchPEF,
-                }[self.method](
-                    16000,
-                    low_fre=self.f0_min,
-                    high_fre=self.f0_max,
-                    slide_length=80,
-                ).pitch(np.pad(self.wav16k, (2048, 2048)))
-            case "stft":
-                f0, _ = audioflux.PitchSTFT(
-                    16000,
-                    low_fre=self.f0_min,
-                    high_fre=self.f0_max,
-                    slide_length=80,
-                ).pitch(np.pad(self.wav16k, (2048, 2048)))
-            case "yin":
-                f0, _, _ = audioflux.PitchYIN(
-                    16000,
-                    low_fre=self.f0_min,
-                    high_fre=self.f0_max,
-                    slide_length=80,
-                ).pitch(np.pad(self.wav16k, (2048, 2048)))
             case "torchcrepe":
                 device = "cuda" if torch.cuda.is_available() else "cpu"
 
