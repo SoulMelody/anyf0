@@ -43,7 +43,7 @@ requires-dist = [
     { name = "construct", specifier = ">=2.10.70" },
     { name = "numba", specifier = ">=0.63.1" },
     { name = "praat-parselmouth", specifier = ">=0.4.7" },
-    { name = "pretty-midi", specifier = ">=0.2.10" },
+    { name = "pretty-midi", specifier = ">=0.2.11" },
     { name = "pyworld", specifier = ">=0.3.5" },
     { name = "swift-f0", specifier = ">=0.1.2" },
     { name = "tgt", specifier = ">=1.5" },
