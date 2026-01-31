@@ -9,6 +9,7 @@ import parselmouth
 import pyworld as pw
 
 from anyf0.fcpe import FCPE
+from anyf0.rmvpe import RMVPE
 from anyf0.swift import SWIFT
 
 
@@ -114,7 +115,17 @@ class F0Extractor:
                 )
                 f0, _ = model_fcpe(self.wav16k)
             case "rmvpe":
-                pass # TODO rmvpe onnx
+                available_providers = ort.get_available_providers()
+                ort_providers = ["CPUExecutionProvider"]
+                for gpu_provider in ["WebGpuExecutionProvider", "CUDAExecutionProvider"]:
+                    if gpu_provider in available_providers:
+                        ort_providers.insert(0, gpu_provider)
+                model_fcpe = RMVPE(
+                    "rmvpe.onnx",
+                    ort_providers=ort_providers,
+                    hop_ms=self.hop_size * 1000
+                )
+                f0, _ = model_fcpe(self.wav16k)
             case "swift":
                 available_providers = ort.get_available_providers()
                 ort_providers = ["CPUExecutionProvider"]
@@ -159,3 +170,9 @@ class F0Extractor:
         plt.xlabel("Time (frames)")
         plt.ylabel("F0 (cents)")
         plt.show()
+
+
+if __name__ == "__main__":
+    f0_extractor = F0Extractor(method="rmvpe", wav_path="test.wav")
+    f0 = f0_extractor.extract_f0()
+    f0_extractor.plot_f0(f0)

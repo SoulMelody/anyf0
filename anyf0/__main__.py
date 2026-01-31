@@ -31,6 +31,7 @@ def cli():
     'swipe',
     'salience',
     'fcpe',
+    'rmvpe',
     'swift',
     'praat_ac',
     'praat_cc'
