@@ -30,6 +30,8 @@ def cli():
     'yin',
     'swipe',
     'salience',
+    'crepe_full',
+    'crepe_tiny',
     'fcpe',
     'rmvpe',
     'swift',

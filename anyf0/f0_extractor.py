@@ -5,9 +5,10 @@ import libf0
 import librosa
 import numpy as np
 import onnxruntime as ort
-import parselmouth
+import parselmouth as pm
 import pyworld as pw
 
+from anyf0 import mod_crepe
 from anyf0.fcpe import FCPE
 from anyf0.rmvpe import RMVPE
 from anyf0.swift import SWIFT
@@ -101,7 +102,32 @@ class F0Extractor:
                 max_indexes = np.argmax(magnitudes, axis=0)
                 f0 = pitches[max_indexes, range(magnitudes.shape[1])]
             case "crepe_full" | "crepe_tiny":
-                pass
+                available_providers = ort.get_available_providers()
+                ort_providers = ["CPUExecutionProvider"]
+                for gpu_provider in ["WebGpuExecutionProvider", "CUDAExecutionProvider"]:
+                    if gpu_provider in available_providers:
+                        ort_providers.insert(0, gpu_provider)
+                ort_session = ort.InferenceSession(
+                    {
+                        "crepe_full": mod_crepe.WEIGHT_CREPE_PATH,
+                        "crepe_tiny": mod_crepe.WEIGHT_CREPE_TINY_PATH,
+                    }[self.method],
+                    providers=ort_providers,
+                )
+                f0, pd = mod_crepe.predict(
+                    np.copy(self.wav16k)[None],
+                    ort_session,
+                    16000,
+                    hop_length=160,
+                    fmin=self.f0_min,
+                    fmax=self.f0_max,
+                    batch_size=512,
+                    return_periodicity=True,
+                )
+                pd = mod_crepe.median(pd, 3)
+                f0 = mod_crepe.mean(f0, 3)
+                f0[pd < 0.1] = 0
+                f0 = f0[0]
             case "fcpe":
                 available_providers = ort.get_available_providers()
                 ort_providers = ["CPUExecutionProvider"]
@@ -147,7 +173,7 @@ class F0Extractor:
                 r_pad = int(self.hop_size * ((len(self.x) - 1) // self.hop_size + 1) - len(self.x) + l_pad + 1)
                 f0 = (
                     getattr(
-                        parselmouth.Sound(np.pad(self.x, (l_pad, r_pad)), self.sample_rate),
+                        pm.Sound(np.pad(self.x, (l_pad, r_pad)), self.sample_rate),
                         "to_pitch_" + self.method.rpartition('_')[-1]
                     )(
                         time_step=self.hop_size,
@@ -170,9 +196,3 @@ class F0Extractor:
         plt.xlabel("Time (frames)")
         plt.ylabel("F0 (cents)")
         plt.show()
-
-
-if __name__ == "__main__":
-    f0_extractor = F0Extractor(method="rmvpe", wav_path="test.wav")
-    f0 = f0_extractor.extract_f0()
-    f0_extractor.plot_f0(f0)
