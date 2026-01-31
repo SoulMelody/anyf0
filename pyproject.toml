@@ -9,10 +9,11 @@ keywords = []
 classifiers = []
 dependencies = [
     "construct>=2.10.70",
+    "libf0>=1.1.1",
     "numba>=0.63.1",
     "praat-parselmouth>=0.4.7",
     "pretty-midi>=0.2.11",
-    "pyworld>=0.3.5",
+    "pyworld-prebuilt>=0.3.5.post2",
     "tgt>=1.5",
 ]
 
@@ -20,18 +21,14 @@ dependencies = [
 cpu = [
     "onnxruntime>=1.23.2",
     "swift-f0>=0.1.2",
-    "torch>=2.10.0",
-    "torchaudio>=2.10.0",
-    "torchcrepe>=0.0.24",
-    "torchfcpe>=0.0.4",
 ]
-cu130 = [
+gpu = [
     "onnxruntime-gpu>=1.23.2",
     "swift-f0>=0.1.2",
-    "torch>=2.10.0",
-    "torchaudio>=2.10.0",
-    "torchcrepe>=0.0.24",
-    "torchfcpe>=0.0.4",
+]
+webgpu = [
+    "onnxruntime-webgpu>=1.24.0.dev20251218001",
+    "swift-f0>=0.1.2",
 ]
 
 [dependency-groups]
@@ -42,35 +39,16 @@ dev = [
 
 [tool.uv]
 conflicts = [
-  [
-    { extra = "cpu" },
-    { extra = "cu130" },
-  ],
-]
-
-[tool.uv.sources]
-torch = [
-    { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu130", marker = "sys_platform != 'darwin'" },
-]
-torchaudio = [
-    { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
-    { index = "pytorch-cu130", marker = "sys_platform != 'darwin'" },
+    [
+        { extra = "cpu" },
+        { extra = "gpu" },
+        { extra = "webgpu" },
+    ],
 ]
 
 [[tool.uv.index]]
 name = "default"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
-
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
-explicit = true
-
-[[tool.uv.index]]
-name = "pytorch-cu130"
-url = "https://download.pytorch.org/whl/cu130"
-explicit = true
 
 [project.scripts]
 anyf0 = "anyf0.__main__:cli"

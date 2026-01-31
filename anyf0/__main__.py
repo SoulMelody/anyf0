@@ -27,21 +27,12 @@ def cli():
     'harvest',
     'pyin',
     'piptrack',
-    'cep',
-    'hps',
-    'lhs',
-    'ncf',
-    'pef',
-    'stft',
     'yin',
     'swipe',
     'salience',
-    'torchcrepe',
-    'torchfcpe',
-    'rmvpe',
+    'swift',
     'praat_ac',
-    'praat_cc',
-    'praat_shs'
+    'praat_cc'
 ]), default='praat_ac')
 def getf0(vshp_path: pathlib.Path, method: str) -> None:
     vshp_data = VocalShifterProjectData.parse_file(vshp_path)

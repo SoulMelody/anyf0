@@ -1,16 +1,14 @@
 import dataclasses
 import pathlib
 
+import libf0
 import librosa
 import numpy as np
+import onnxruntime as ort
 import parselmouth
 import pyworld as pw
-import resampy
-import torch
-import torchcrepe
-import torchfcpe
 
-from anyf0.rmvpe import RMVPE
+from anyf0.swift import SWIFT
 
 
 def hz_to_cents(F, F_ref=55.0):
@@ -57,7 +55,7 @@ class F0Extractor:
 
     @property
     def wav16k(self) -> np.ndarray:
-        return resampy.resample(self.x, self.sample_rate, 16000)
+        return librosa.resample(self.x, orig_sr=self.sample_rate, target_sr=16000)
 
     def extract_f0(self) -> np.ndarray:
         f0 = None
@@ -82,13 +80,13 @@ class F0Extractor:
                     frame_period=(1000 * self.hop_size),
                 )
                 f0 = f0.astype("float")
-            case "pyin":
-                f0, _, _ = librosa.pyin(
-                    y=self.wav16k,
-                    fmin=self.f0_min,
-                    fmax=self.f0_max,
-                    sr=16000,
-                    hop_length=80,
+            case "pyin" | "swipe" | "salience" | "yin":
+                f0, _, _ = getattr(libf0, self.method)(
+                    self.x,
+                    Fs=self.sample_rate,
+                    H=self.hop_length,
+                    F_min=self.f0_min,
+                    F_max=self.f0_max,
                 )
             case "piptrack":
                 pitches, magnitudes = librosa.piptrack(
@@ -100,48 +98,28 @@ class F0Extractor:
                 )
                 max_indexes = np.argmax(magnitudes, axis=0)
                 f0 = pitches[max_indexes, range(magnitudes.shape[1])]
-            case "torchcrepe":
-                device = "cuda" if torch.cuda.is_available() else "cpu"
-
-                wav16k_torch = torch.FloatTensor(self.wav16k).unsqueeze(0).to(device)
-                f0 = torchcrepe.predict(
-                    wav16k_torch,
+            case "crepe_full" | "crepe_tiny":
+                pass  # TODO: crepe onnx
+            case "fcpe":
+                pass  # TODO: fcpe onnx
+            case "rmvpe":
+                pass  # TODO: rmvpe onnx
+            case "swift":
+                available_providers = ort.get_available_providers()
+                ort_providers = ["CPUExecutionProvider"]
+                for gpu_provider in ["WebGpuExecutionProvider", "CUDAExecutionProvider"]:
+                    if gpu_provider in available_providers:
+                        ort_providers.insert(0, gpu_provider)
+                model_swift = SWIFT(
                     sample_rate=16000,
-                    hop_length=80,
-                    batch_size=1024,
-                    fmin=self.f0_min,
-                    fmax=self.f0_max,
-                    device=device,
+                    hop_size=80,
+                    ort_providers=ort_providers,
                 )
-                f0 = f0[0].cpu().numpy()
-            case "torchfcpe":
-                device = "cuda" if torch.cuda.is_available() else "cpu"
-                audio = librosa.to_mono(self.x)
-                audio_length = len(audio)
-                f0_target_length = (audio_length // self.hop_length) + 1
-                audio = torch.from_numpy(audio).float().unsqueeze(0).unsqueeze(-1).to(device)
-                model = torchfcpe.spawn_bundled_infer_model(device=device)
-
-                f0 = model.infer(
-                    audio,
-                    sr=self.sample_rate,
-                    decoder_mode='local_argmax',
-                    threshold=0.006,
+                f0 = model_swift.get_f0(
+                    self.wav16k,
                     f0_min=self.f0_min,
                     f0_max=self.f0_max,
-                    interp_uv=False,
-                    output_interp_target_length=f0_target_length,
                 )
-                f0 = f0.squeeze().cpu().numpy()
-            case "rmvpe":
-                device = "cuda" if torch.cuda.is_available() else "cpu"
-                model_rmvpe = RMVPE(
-                    "rmvpe.pt",
-                    is_half=True,
-                    device=device,
-                    hop_length=80
-                )
-                f0 = model_rmvpe.infer_from_audio(self.wav16k, thred=0.03)
             case "praat_ac" | "praat_cc":
                 l_pad = int(np.ceil(1.5 / self.f0_min * self.sample_rate))
                 r_pad = int(self.hop_size * ((len(self.x) - 1) // self.hop_size + 1) - len(self.x) + l_pad + 1)
@@ -157,16 +135,6 @@ class F0Extractor:
                     )
                     .selected_array["frequency"]
                 )
-            case "praat_shs":
-                l_pad = int(np.ceil(1.5 / self.f0_min * self.sample_rate))
-                r_pad = int(self.hop_size * ((len(self.x) - 1) // self.hop_size + 1) - len(self.x) + l_pad + 1)
-                f0 = parselmouth.Sound(
-                    np.pad(self.x, (l_pad, r_pad)), self.sample_rate
-                ).to_pitch_shs(
-                    time_step=self.hop_size,
-                    minimum_pitch=self.f0_min,
-                    maximum_frequency_component=self.f0_max,
-                ).selected_array["frequency"]
             case _:
                 raise ValueError(f"Unknown method: {self.method}")
         return hz_to_cents(f0, librosa.midi_to_hz(0))
