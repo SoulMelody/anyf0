@@ -36,12 +36,13 @@ dependencies = [
     { name = "praat-parselmouth" },
     { name = "pretty-midi" },
     { name = "pyworld" },
-    { name = "swift-f0" },
     { name = "tgt" },
 ]
 
 [package.optional-dependencies]
 cpu = [
+    { name = "onnxruntime" },
+    { name = "swift-f0" },
     { name = "torch", version = "2.10.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-5-anyf0-cpu') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
     { name = "torch", version = "2.10.0+cu130", source = { registry = "https://download.pytorch.org/whl/cu130" }, marker = "(sys_platform != 'darwin' and extra == 'extra-5-anyf0-cpu') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
     { name = "torchaudio", version = "2.10.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-5-anyf0-cpu') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
@@ -50,6 +51,8 @@ cpu = [
     { name = "torchfcpe" },
 ]
 cu130 = [
+    { name = "onnxruntime-gpu" },
+    { name = "swift-f0" },
     { name = "torch", version = "2.10.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-5-anyf0-cu130') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
     { name = "torch", version = "2.10.0+cu130", source = { registry = "https://download.pytorch.org/whl/cu130" }, marker = "(sys_platform != 'darwin' and extra == 'extra-5-anyf0-cu130') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
     { name = "torchaudio", version = "2.10.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-5-anyf0-cu130') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
@@ -68,10 +71,13 @@ dev = [
 requires-dist = [
     { name = "construct", specifier = ">=2.10.70" },
     { name = "numba", specifier = ">=0.63.1" },
+    { name = "onnxruntime", marker = "extra == 'cpu'", specifier = ">=1.23.2" },
+    { name = "onnxruntime-gpu", marker = "extra == 'cu130'", specifier = ">=1.23.2" },
     { name = "praat-parselmouth", specifier = ">=0.4.7" },
     { name = "pretty-midi", specifier = ">=0.2.11" },
     { name = "pyworld", specifier = ">=0.3.5" },
-    { name = "swift-f0", specifier = ">=0.1.2" },
+    { name = "swift-f0", marker = "extra == 'cpu'", specifier = ">=0.1.2" },
+    { name = "swift-f0", marker = "extra == 'cu130'", specifier = ">=0.1.2" },
     { name = "tgt", specifier = ">=1.5" },
     { name = "torch", marker = "sys_platform == 'darwin' and extra == 'cpu'", specifier = ">=2.10.0", index = "https://download.pytorch.org/whl/cpu" },
     { name = "torch", marker = "sys_platform == 'darwin' and extra == 'cu130'", specifier = ">=2.10.0", index = "https://download.pytorch.org/whl/cpu" },
@@ -600,7 +606,7 @@ name = "humanfriendly"
 version = "10.0"
 source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }
 dependencies = [
-    { name = "pyreadline3", marker = "sys_platform == 'win32' or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
+    { name = "pyreadline3", marker = "sys_platform == 'win32'" },
 ]
 sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/cc/3f/2c29224acb2e2df4d2046e4c73ee2662023c58ff5b113c4c1adac0886c43/humanfriendly-10.0.tar.gz", hash = "sha256:6b0b831ce8f15f7300721aa49829fc4e83921a9a301cc7f606be6686a2288ddc", size = 360702, upload-time = "2021-09-17T21:40:43.31Z" }
 wheels = [
@@ -1392,8 +1398,8 @@ source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }
 dependencies = [
     { name = "coloredlogs" },
     { name = "flatbuffers" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }, marker = "(python_full_version < '3.11' and extra == 'extra-5-anyf0-cpu') or (python_full_version < '3.11' and extra == 'extra-5-anyf0-cu130') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }, marker = "(python_full_version >= '3.11' and extra == 'extra-5-anyf0-cpu') or (python_full_version >= '3.11' and extra == 'extra-5-anyf0-cu130') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
     { name = "packaging" },
     { name = "protobuf" },
     { name = "sympy" },
@@ -1421,6 +1427,31 @@ wheels = [
     { url = "https://pypi.tuna.tsinghua.edu.cn/packages/4a/93/aba75358133b3a941d736816dd392f687e7eab77215a6e429879080b76b6/onnxruntime-1.23.2-cp313-cp313-win_amd64.whl", hash = "sha256:1f9cc0a55349c584f083c1c076e611a7c35d5b867d5d6e6d6c823bf821978088", size = 13470276, upload-time = "2025-10-22T03:47:31.193Z" },
     { url = "https://pypi.tuna.tsinghua.edu.cn/packages/7c/3d/6830fa61c69ca8e905f237001dbfc01689a4e4ab06147020a4518318881f/onnxruntime-1.23.2-cp313-cp313t-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:9d2385e774f46ac38f02b3a91a91e30263d41b2f1f4f26ae34805b2a9ddef466", size = 15229610, upload-time = "2025-10-22T03:46:32.239Z" },
     { url = "https://pypi.tuna.tsinghua.edu.cn/packages/b6/ca/862b1e7a639460f0ca25fd5b6135fb42cf9deea86d398a92e44dfda2279d/onnxruntime-1.23.2-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:e2b9233c4947907fd1818d0e581c049c41ccc39b2856cc942ff6d26317cee145", size = 17394184, upload-time = "2025-10-22T03:47:08.127Z" },
+]
+
+[[package]]
+name = "onnxruntime-gpu"
+version = "1.23.2"
+source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }
+dependencies = [
+    { name = "coloredlogs" },
+    { name = "flatbuffers" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }, marker = "(python_full_version < '3.11' and extra == 'extra-5-anyf0-cu130') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }, marker = "(python_full_version >= '3.11' and extra == 'extra-5-anyf0-cu130') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
+    { name = "packaging" },
+    { name = "protobuf" },
+    { name = "sympy" },
+]
+wheels = [
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/cb/ae/39283748c68a96be4f5f8a9561e0e3ca92af1eae6c2b1c07fb1da5f65cd1/onnxruntime_gpu-1.23.2-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:18de50c6c8eea50acc405ea13d299aec593e46478d7a22cd32cdbbdf7c42899d", size = 300525411, upload-time = "2025-10-22T16:56:08.415Z" },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/21/c9/47abd3ec1f34498224d2a8f5cc4d1445eb5cc7dee8e3644b1a972619c0d2/onnxruntime_gpu-1.23.2-cp310-cp310-win_amd64.whl", hash = "sha256:deba091e15357355aa836fd64c6c4ac97dd0c4609c38b08a69675073ea46b321", size = 244505340, upload-time = "2025-10-27T22:47:43.215Z" },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/43/a4/e3d7fbe32b44e814ae24ed642f05fac5d96d120efd82db7a7cac936e85a9/onnxruntime_gpu-1.23.2-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:d76d1ac7a479ecc3ac54482eea4ba3b10d68e888a0f8b5f420f0bdf82c5eec59", size = 300525715, upload-time = "2025-10-22T16:56:19.928Z" },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/a9/5c/dba7c009e73dcce02e7f714574345b5e607c5c75510eb8d7bef682b45e5d/onnxruntime_gpu-1.23.2-cp311-cp311-win_amd64.whl", hash = "sha256:054282614c2fc9a4a27d74242afbae706a410f1f63cc35bc72f99709029a5ba4", size = 244506823, upload-time = "2025-10-22T16:55:09.526Z" },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/6c/d9/b7140a4f1615195938c7e358c0804bb84271f0d6886b5cbf105c6cb58aae/onnxruntime_gpu-1.23.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:4f2d1f720685d729b5258ec1b36dee1de381b8898189908c98cbeecdb2f2b5c2", size = 300509596, upload-time = "2025-10-22T16:56:31.728Z" },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/87/da/2685c79e5ea587beddebe083601fead0bdf3620bc2f92d18756e7de8a636/onnxruntime_gpu-1.23.2-cp312-cp312-win_amd64.whl", hash = "sha256:fe925a84b00e291e0ad3fac29bfd8f8e06112abc760cdc82cb711b4f3935bd95", size = 244508327, upload-time = "2025-10-22T16:55:19.397Z" },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/03/05/40d561636e4114b54aa06d2371bfbca2d03e12cfdf5d4b85814802f18a75/onnxruntime_gpu-1.23.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1e8f75af5da07329d0c3a5006087f4051d8abd133b4be7c9bae8cdab7bea4c26", size = 300515567, upload-time = "2025-10-22T16:56:43.794Z" },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/b6/3b/418300438063d403384c79eaef1cb13c97627042f2247b35a887276a355a/onnxruntime_gpu-1.23.2-cp313-cp313-win_amd64.whl", hash = "sha256:7f1b3f49e5e126b99e23ec86b4203db41c2a911f6165f7624f2bc8267aaca767", size = 244507535, upload-time = "2025-10-22T16:55:28.532Z" },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/b8/dc/80b145e3134d7eba31309b3299a2836e37c76e4c419a261ad9796f8f8d65/onnxruntime_gpu-1.23.2-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:20959cd4ae358aab6579ab9123284a7b1498f7d51ec291d429a5edc26511306f", size = 300525759, upload-time = "2025-10-22T16:56:56.925Z" },
 ]
 
 [[package]]
@@ -2002,8 +2033,8 @@ name = "swift-f0"
 version = "0.1.2"
 source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
-    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }, marker = "(python_full_version < '3.11' and extra == 'extra-5-anyf0-cpu') or (python_full_version < '3.11' and extra == 'extra-5-anyf0-cu130') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }, marker = "(python_full_version >= '3.11' and extra == 'extra-5-anyf0-cpu') or (python_full_version >= '3.11' and extra == 'extra-5-anyf0-cu130') or (extra == 'extra-5-anyf0-cpu' and extra == 'extra-5-anyf0-cu130')" },
     { name = "onnxruntime" },
 ]
 sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/4b/6e/09c4d2e1c7fda7823369dd3006877f1b508614939eed4c5073d60fb3fd3a/swift_f0-0.1.2.tar.gz", hash = "sha256:2d0e48f1a673bf146358bcf5bbd677da06c77af2480b8bb0926da4f653c9f7d2", size = 383031, upload-time = "2025-07-24T22:50:50.516Z" }
