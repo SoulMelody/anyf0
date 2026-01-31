@@ -30,6 +30,7 @@ def cli():
     'yin',
     'swipe',
     'salience',
+    'fcpe',
     'swift',
     'praat_ac',
     'praat_cc'

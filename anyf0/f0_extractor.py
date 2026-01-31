@@ -8,6 +8,7 @@ import onnxruntime as ort
 import parselmouth
 import pyworld as pw
 
+from anyf0.fcpe import FCPE
 from anyf0.swift import SWIFT
 
 
@@ -99,11 +100,21 @@ class F0Extractor:
                 max_indexes = np.argmax(magnitudes, axis=0)
                 f0 = pitches[max_indexes, range(magnitudes.shape[1])]
             case "crepe_full" | "crepe_tiny":
-                pass  # TODO: crepe onnx
+                pass
             case "fcpe":
-                pass  # TODO: fcpe onnx
+                available_providers = ort.get_available_providers()
+                ort_providers = ["CPUExecutionProvider"]
+                for gpu_provider in ["WebGpuExecutionProvider", "CUDAExecutionProvider"]:
+                    if gpu_provider in available_providers:
+                        ort_providers.insert(0, gpu_provider)
+                model_fcpe = FCPE(
+                    "fcpe.onnx",
+                    ort_providers=ort_providers,
+                    hop_ms=self.hop_size * 1000
+                )
+                f0, _ = model_fcpe(self.wav16k)
             case "rmvpe":
-                pass  # TODO: rmvpe onnx
+                pass # TODO rmvpe onnx
             case "swift":
                 available_providers = ort.get_available_providers()
                 ort_providers = ["CPUExecutionProvider"]
