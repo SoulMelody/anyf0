@@ -24,9 +24,9 @@ cpu = [
 ]
 cuda = [
     "onnxruntime-gpu>=1.24.1",
-    "nvidia-cuda-runtime>=13.1.80",
-    "nvidia-cufft>=12.1.0.78",
-    "nvidia-cudnn-cu13>=9.19.0.56",
+    "nvidia-cuda-runtime-cu12>=12.9.79",
+    "nvidia-cufft-cu12>=11.4.1.4",
+    "nvidia-cudnn-cu12>=9.19.0.56",
     "swift-f0>=0.1.2",
 ]
 webgpu = [
