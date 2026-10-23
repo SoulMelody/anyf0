@@ -1,6 +1,7 @@
 # https://github.com/ArkanDash/Advanced-RVC-Inference/blob/master/advanced_rvc_inference/library/predictors/SWIFT/SWIFT.py
 
 import numpy as np
+from jaxtyping import Float
 from swift_f0 import SwiftF0
 
 
@@ -10,7 +11,14 @@ class SWIFT:
         self.hop_size = hop_size
         self.ort_providers = ort_providers
 
-    def get_f0(self, x, f0_min=50, f0_max=1100, p_len=None, confidence_threshold=0.9):
+    def get_f0(
+        self,
+        x: Float[np.ndarray, " T"],
+        f0_min: float = 50,
+        f0_max: float = 1100,
+        p_len: int | None = None,
+        confidence_threshold: float = 0.9,
+    ) -> Float[np.ndarray, " F"]:
         if p_len is None:
             p_len = x.shape[0] // self.hop_size
 

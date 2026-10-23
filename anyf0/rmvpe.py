@@ -3,6 +3,7 @@
 # These modules are licensed under the MIT License.
 import numpy as np
 import onnxruntime as ort
+from jaxtyping import Float
 
 from anyf0.wav2mel import MelSpectrogram
 
@@ -16,7 +17,7 @@ class RMVPE:
         self.mel_extractor = MelSpectrogram(n_mel_channels=128, sampling_rate=fs16k,
             win_length=1024, hop_length=hop_16k, n_fft=None, mel_fmin=30, mel_fmax=8000)
 
-    def __call__(self, x: np.ndarray):
+    def __call__(self, x: Float[np.ndarray, " T"]) -> tuple[Float[np.ndarray, " F"], Float[np.ndarray, " F"]]:
         x0 = x[None]
         xmel = self.mel_extractor(x0)
 

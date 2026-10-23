@@ -4,6 +4,7 @@ import functools
 import numpy as np
 import scipy
 import librosa
+from jaxtyping import Float
 
 WEIGHT_CREPE_PATH = "crepe.onnx"
 WEIGHT_CREPE_TINY_PATH = "crepe_tiny.onnx"
@@ -116,17 +117,17 @@ def viterbi(logits):
 ###############################################################################
 
 def predict(
-    audio,
+    audio: Float[np.ndarray, "B T"],
     session,
-    sample_rate,
-    hop_length=None,
-    fmin=50.,
-    fmax=MAX_FMAX,
+    sample_rate: int,
+    hop_length: int | None = None,
+    fmin: float = 50.,
+    fmax: float = MAX_FMAX,
     decoder=viterbi,
-    return_periodicity=False,
-    batch_size=None,
-    pad=True
-):
+    return_periodicity: bool = False,
+    batch_size: int | None = None,
+    pad: bool = True,
+) -> Float[np.ndarray, "B F"] | tuple[Float[np.ndarray, "B F"], Float[np.ndarray, "B F"]]:
     """Performs pitch estimation
 
     Arguments
@@ -393,7 +394,7 @@ def dither(cents):
 # Sequence filters
 ###############################################################################
 
-def mean(signals, win_length=9):
+def mean(signals: Float[np.ndarray, "B T"], win_length: int = 9) -> Float[np.ndarray, "B T"]:
     """Averave filtering for signals containing nan values
 
     Arguments
@@ -441,7 +442,7 @@ def mean(signals, win_length=9):
     return avg_pooled
 
 
-def median(signals, win_length):
+def median(signals: Float[np.ndarray, "B T"], win_length: int) -> Float[np.ndarray, "B T"]:
     """Median filtering for signals containing nan values
 
     Arguments

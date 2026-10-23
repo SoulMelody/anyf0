@@ -8,35 +8,31 @@ description = "Use VocalShifter to visualize f0 curve instead of matplotlib"
 keywords = []
 classifiers = []
 dependencies = [
-    "click>=8.4.1",
+    "click>=8.5.0",
     "construct>=2.10.70",
+    "jaxtyping>=0.3.11",
     "libf0>=1.1.1",
-    "numba>=0.65.1",
+    "numba>=0.68.0",
     "praat-parselmouth>=0.4.7",
     "pretty-midi>=0.2.11",
-    "pyworld-prebuilt>=0.3.5.post2",
+    "pyworld-prebuilt>=0.3.6.post1",
     "tgt>=1.5",
 ]
 
 [project.optional-dependencies]
 cpu = [
-    "onnxruntime>=1.27.0",
-    "onnxruntime-ep-webgpu>=0.1.0",
-    "swift-f0>=0.1.2",
+    "onnxruntime>=1.31.0",
+    "onnxruntime-ep-webgpu>=0.4.0",
+    "swift-f0>=0.3.0",
 ]
 cuda = [
-    "onnxruntime-gpu[cudnn]>=1.27.0",
-    "nvidia-cuda-runtime>=13.3.29",
-    "nvidia-cufft>=12.3.0.29",
-    "nvidia-curand>=10.4.3.29",
-    "nvidia-cuda-nvrtc>=13.3.33",
-    "swift-f0>=0.1.2",
+    "onnxruntime-gpu[cuda,cudnn]>=1.31.0",
+    "swift-f0>=0.3.0",
 ]
 
 [dependency-groups]
 dev = [
-    "jaxtyping>=0.3.11",
-    "matplotlib>=3.11.0",
+    "matplotlib>=3.11.2",
 ]
 
 [tool.uv]

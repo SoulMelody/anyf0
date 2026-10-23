@@ -7,6 +7,7 @@ import numpy as np
 import onnxruntime as ort
 import parselmouth as pm
 import pyworld as pw
+from jaxtyping import Float
 
 from anyf0 import mod_crepe
 from anyf0.fcpe import FCPE
@@ -14,7 +15,10 @@ from anyf0.rmvpe import RMVPE
 from anyf0.swift import SWIFT
 
 
-def hz_to_cents(F, F_ref=55.0):
+def hz_to_cents(
+    F: Float[np.ndarray, "..."] | float,
+    F_ref: float = 55.0,
+) -> Float[np.ndarray, "..."]:
     """
     Converts frequency in Hz to cents.
 
@@ -47,7 +51,7 @@ class F0Extractor:
     f0_min: int = 50
     f0_max: int = 1600
     method: str = "praat_ac"
-    x: np.ndarray = dataclasses.field(init=False)
+    x: Float[np.ndarray, " T"] = dataclasses.field(init=False)
 
     def __post_init__(self):
         self.x, self.sample_rate = librosa.load(self.wav_path, sr=self.sample_rate)
@@ -57,10 +61,10 @@ class F0Extractor:
         return self.hop_length / self.sample_rate
 
     @property
-    def wav16k(self) -> np.ndarray:
+    def wav16k(self) -> Float[np.ndarray, " T"]:
         return librosa.resample(self.x, orig_sr=self.sample_rate, target_sr=16000)
 
-    def extract_f0(self) -> np.ndarray:
+    def extract_f0(self) -> Float[np.ndarray, " F"]:
         f0 = None
         match self.method:
             case "dio":
@@ -187,7 +191,7 @@ class F0Extractor:
                 raise ValueError(f"Unknown method: {self.method}")
         return hz_to_cents(f0, librosa.midi_to_hz(0))
 
-    def plot_f0(self, f0):
+    def plot_f0(self, f0: Float[np.ndarray, " F"]) -> None:
         from matplotlib import pyplot as plt
 
         plt.figure(figsize=(10, 4))

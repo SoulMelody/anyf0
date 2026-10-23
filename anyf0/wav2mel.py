@@ -4,6 +4,7 @@
 
 import librosa
 import numpy as np
+from jaxtyping import Float
 
 
 class MelSpectrogram:
@@ -18,7 +19,7 @@ class MelSpectrogram:
         self.n_mel_channels = n_mel_channels
         self.clamp = clamp
 
-    def __call__(self, audio):
+    def __call__(self, audio: Float[np.ndarray, "B T"]) -> Float[np.ndarray, "B M F"]:
         n_fft = self.n_fft
         win_length = self.win_length
         hop_length = self.hop_length
